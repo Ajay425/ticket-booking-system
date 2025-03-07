@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Ticket Booking</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Bus Ticket Booking</h2>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/" method="post">
+            <input type="text" name="name" placeholder="Full Name" required>
+
+            <input type="email" name="email" placeholder="Email Address" required>
+
+            <input type="tel" name="phone" placeholder="Phone Number" required>
+
+            <select name="from_location" required>
+                <option value="" disabled selected>From (Departure City)</option>
+                {% for city in cities %}
+                <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="to_location" required>
+                <option value="" disabled selected>To (Destination City)</option>
+                {% for city in cities %}
+                <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="ticket_type" id="ticket_type" required onchange="toggleReturnDate()">
+                <option value="one_way">One Way Ticket</option>
+                <option value="return">Return Ticket</option>
+            </select>
+
+            <input type="date" name="date" required placeholder="Departure Date">
+
+            <input type="date" name="return_date" id="return_date_input" style="display: none;" placeholder="Return Date">
+
+            <select name="bus_service" required>
+                <option value="" disabled selected>Select Bus Service</option>
+                {% for service in bus_services %}
+                <option value="{{ service }}">{{ service }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="number" name="tickets" placeholder="Number of Tickets" min="1" required>
+
+            <button type="submit">Book Ticket</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleReturnDate() {
+            var ticketType = document.getElementById("ticket_type").value;
+            var returnDateInput = document.getElementById("return_date_input");
+
+            if (ticketType === "return") {
+                returnDateInput.style.display = "block";
+                returnDateInput.setAttribute("required", "required");
+            } else {
+                returnDateInput.style.display = "none";
+                returnDateInput.removeAttribute("required");
+            }
+        }
+    </script>
+</body>
+</html>
