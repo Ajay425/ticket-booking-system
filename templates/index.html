@@ -35,20 +35,28 @@
                 {% endfor %}
             </select>
 
-            <select name="ticket_type" id="ticket_type" required onchange="toggleReturnDate()">
+            <select name="ticket_type" id="ticket_type" required onchange="toggleReturnOptions()">
                 <option value="one_way">One Way Ticket</option>
                 <option value="return">Return Ticket</option>
             </select>
 
-            <input type="date" name="date" required placeholder="Departure Date">
+            <input type="date" name="date" min="{{ today }}" required placeholder="Departure Date">
 
-            <input type="date" name="return_date" id="return_date_input" style="display: none;" placeholder="Return Date">
+            <input type="date" name="return_date" id="return_date_input" min="{{ today }}" style="display: none;" placeholder="Return Date">
 
-            <select name="bus_service" required>
+            <select name="bus_service" id="bus_service" required onchange="updateBusTimings()">
                 <option value="" disabled selected>Select Bus Service</option>
                 {% for service in bus_services %}
                 <option value="{{ service }}">{{ service }}</option>
                 {% endfor %}
+            </select>
+
+            <select name="bus_time" id="bus_time" required>
+                <option value="" disabled selected>Select Departure Time</option>
+            </select>
+
+            <select name="return_time" id="return_time" style="display: none;">
+                <option value="" disabled selected>Select Return Time</option>
             </select>
 
             <input type="number" name="tickets" placeholder="Number of Tickets" min="1" required>
@@ -58,16 +66,62 @@
     </div>
 
     <script>
-        function toggleReturnDate() {
+        function toggleReturnOptions() {
             var ticketType = document.getElementById("ticket_type").value;
             var returnDateInput = document.getElementById("return_date_input");
+            var returnTimeDropdown = document.getElementById("return_time");
 
             if (ticketType === "return") {
                 returnDateInput.style.display = "block";
                 returnDateInput.setAttribute("required", "required");
+                returnTimeDropdown.style.display = "block";
+                returnTimeDropdown.setAttribute("required", "required");
             } else {
                 returnDateInput.style.display = "none";
                 returnDateInput.removeAttribute("required");
+                returnTimeDropdown.style.display = "none";
+                returnTimeDropdown.removeAttribute("required");
+            }
+        }
+
+        function updateBusTimings() {
+            var busService = document.getElementById("bus_service").value;
+            var busTimeDropdown = document.getElementById("bus_time");
+            var returnTimeDropdown = document.getElementById("return_time");
+
+            var busTimings = {
+                "RedBus": ["08:00 AM", "12:00 PM", "06:00 PM"],
+                "VRL Travels": ["09:30 AM", "03:00 PM", "09:00 PM"],
+                "KSRTC": ["07:15 AM", "01:30 PM", "10:30 PM"]
+            };
+
+            var returnTimings = {
+                "RedBus": ["07:00 AM", "11:00 AM", "05:00 PM"],
+                "VRL Travels": ["10:00 AM", "04:00 PM", "08:00 PM"],
+                "KSRTC": ["06:30 AM", "02:00 PM", "09:30 PM"]
+            };
+
+            // Clear existing options
+            busTimeDropdown.innerHTML = '<option value="" disabled selected>Select Departure Time</option>';
+            returnTimeDropdown.innerHTML = '<option value="" disabled selected>Select Return Time</option>';
+
+            // Add new options based on selected bus service
+            if (busService in busTimings) {
+                busTimings[busService].forEach(time => {
+                    var option = document.createElement("option");
+                    option.value = time;
+                    option.textContent = time;
+                    busTimeDropdown.appendChild(option);
+                });
+            }
+
+            if (busService in returnTimings) {
+                returnTimings[busService].forEach(time => {
+                    var option = document.createElement("option");
+                    option.value = time;
+                    option.textContent = time;
+                    returnTimeDropdown.appendChild(option);
+                });
             }
         }
     </script>
