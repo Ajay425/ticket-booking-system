@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Booking</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Thank You for Booking!</h2>
+        <p>Your ticket has been successfully booked.</p>
+
+        <h3>Booking Details:</h3>
+        <p><strong>Name:</strong> {{ booking.name }}</p>
+        <p><strong>Email:</strong> {{ booking.email }}</p>
+        <p><strong>Phone:</strong> {{ booking.phone }}</p>
+        <p><strong>From:</strong> {{ booking.from_location }}</p>
+        <p><strong>To:</strong> {{ booking.to_location }}</p>
+        <p><strong>Ticket Type:</strong> {{ booking.ticket_type }}</p>
+        <p><strong>Departure Date:</strong> {{ booking.date }}</p>
+
+        {% if booking.ticket_type == "return" %}
+            <p><strong>Return Date:</strong> {{ booking.return_date }}</p>
+            <p><strong>Return Time:</strong> {{ booking.return_time }}</p>
+        {% endif %}
+
+        <p><strong>Bus Service:</strong> {{ booking.bus_service }}</p>
+        <p><strong>Selected Seats:</strong> {{ seats | join(", ") }}</p>
+        
+        <h3>Enjoy your trip!</h3>
+        <a href="{{ url_for('index') }}" class="btn">Book Another Ticket</a>
+    </div>
+</body>
+</html>

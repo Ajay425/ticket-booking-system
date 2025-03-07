@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Seats</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Select Your Seats</h2>
+
+        <form action="/select-seats" method="post">
+            <div id="seat-map">
+                {% for row in range(1, 5) %}  <!-- Reduced to 4 rows -->
+                <div class="seat-row">
+                    {% for col in ['A', 'B', 'C', 'D'] %}
+                    <input type="checkbox" name="selected_seats" value="{{ row }}{{ col }}" id="seat{{ row }}{{ col }}">
+                    <label for="seat{{ row }}{{ col }}" class="seat">{{ row }}{{ col }}</label>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Confirm Seats</button>
+        </form>
+    </div>
+</body>
+</html>

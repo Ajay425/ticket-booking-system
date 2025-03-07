@@ -10,25 +10,27 @@
     <div class="container">
         <h2>Bus Ticket Booking</h2>
 
-        {% if error %}
-        <p class="error">{{ error }}</p>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <p class="{{ category }}">{{ message }}</p>
+        {% endfor %}
         {% endif %}
+        {% endwith %}
 
-        <form action="/" method="post">
+        <form action="/" method="post" oninput="calculatePrice()">
             <input type="text" name="name" placeholder="Full Name" required>
-
             <input type="email" name="email" placeholder="Email Address" required>
-
             <input type="tel" name="phone" placeholder="Phone Number" required>
 
-            <select name="from_location" required>
+            <select name="from_location" id="from_location" required>
                 <option value="" disabled selected>From (Departure City)</option>
                 {% for city in cities %}
                 <option value="{{ city }}">{{ city }}</option>
                 {% endfor %}
             </select>
 
-            <select name="to_location" required>
+            <select name="to_location" id="to_location" required>
                 <option value="" disabled selected>To (Destination City)</option>
                 {% for city in cities %}
                 <option value="{{ city }}">{{ city }}</option>
@@ -42,8 +44,6 @@
 
             <input type="date" name="date" min="{{ today }}" required placeholder="Departure Date">
 
-            <input type="date" name="return_date" id="return_date_input" min="{{ today }}" style="display: none;" placeholder="Return Date">
-
             <select name="bus_service" id="bus_service" required onchange="updateBusTimings()">
                 <option value="" disabled selected>Select Bus Service</option>
                 {% for service in bus_services %}
@@ -55,75 +55,32 @@
                 <option value="" disabled selected>Select Departure Time</option>
             </select>
 
+            <input type="date" name="return_date" id="return_date_input" min="{{ today }}" style="display: none;" placeholder="Return Date">
+
             <select name="return_time" id="return_time" style="display: none;">
                 <option value="" disabled selected>Select Return Time</option>
             </select>
 
-            <input type="number" name="tickets" placeholder="Number of Tickets" min="1" required>
+            <h3>Number of Passengers:</h3>
+            <input type="number" name="adults" id="adults" min="0" placeholder="Adults (₹500 each)">
+            <input type="number" name="kids" id="kids" min="0" placeholder="Kids under 12 (Free)">
+            <input type="number" name="seniors" id="seniors" min="0" placeholder="Seniors 65+ (₹375 each)">
+
+            <h3>Selected Seats:</h3>
+            {% if session.get("selected_seats") %}
+                <p>{{ session["selected_seats"] | join(", ") }}</p>
+            {% else %}
+                <p>No seats selected.</p>
+            {% endif %}
+
+            <a href="{{ url_for('select_seats') }}" class="btn">Choose Seats</a>
+
+            <h3>Total Price: <span id="total_price">₹0</span></h3>
 
             <button type="submit">Book Ticket</button>
         </form>
     </div>
 
-    <script>
-        function toggleReturnOptions() {
-            var ticketType = document.getElementById("ticket_type").value;
-            var returnDateInput = document.getElementById("return_date_input");
-            var returnTimeDropdown = document.getElementById("return_time");
-
-            if (ticketType === "return") {
-                returnDateInput.style.display = "block";
-                returnDateInput.setAttribute("required", "required");
-                returnTimeDropdown.style.display = "block";
-                returnTimeDropdown.setAttribute("required", "required");
-            } else {
-                returnDateInput.style.display = "none";
-                returnDateInput.removeAttribute("required");
-                returnTimeDropdown.style.display = "none";
-                returnTimeDropdown.removeAttribute("required");
-            }
-        }
-
-        function updateBusTimings() {
-            var busService = document.getElementById("bus_service").value;
-            var busTimeDropdown = document.getElementById("bus_time");
-            var returnTimeDropdown = document.getElementById("return_time");
-
-            var busTimings = {
-                "RedBus": ["08:00 AM", "12:00 PM", "06:00 PM"],
-                "VRL Travels": ["09:30 AM", "03:00 PM", "09:00 PM"],
-                "KSRTC": ["07:15 AM", "01:30 PM", "10:30 PM"]
-            };
-
-            var returnTimings = {
-                "RedBus": ["07:00 AM", "11:00 AM", "05:00 PM"],
-                "VRL Travels": ["10:00 AM", "04:00 PM", "08:00 PM"],
-                "KSRTC": ["06:30 AM", "02:00 PM", "09:30 PM"]
-            };
-
-            // Clear existing options
-            busTimeDropdown.innerHTML = '<option value="" disabled selected>Select Departure Time</option>';
-            returnTimeDropdown.innerHTML = '<option value="" disabled selected>Select Return Time</option>';
-
-            // Add new options based on selected bus service
-            if (busService in busTimings) {
-                busTimings[busService].forEach(time => {
-                    var option = document.createElement("option");
-                    option.value = time;
-                    option.textContent = time;
-                    busTimeDropdown.appendChild(option);
-                });
-            }
-
-            if (busService in returnTimings) {
-                returnTimings[busService].forEach(time => {
-                    var option = document.createElement("option");
-                    option.value = time;
-                    option.textContent = time;
-                    returnTimeDropdown.appendChild(option);
-                });
-            }
-        }
-    </script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
